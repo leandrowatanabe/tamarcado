@@ -1,5 +1,3 @@
-from dataclasses import fields
-from pyexpat import model
 from django.contrib.auth.models import User
 from django.utils import timezone
 from rest_framework import serializers
@@ -25,13 +23,30 @@ class AgendamentoSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Agendamento não pode ser feito no passado!")
         return value
 
-    # def validate(self, attrs):
-    #     telefone_cliente = attrs.get("telefone_cliente", "")
-    #     email_cliente = attrs.get("email_cliente")
 
-    #     if(email_cliente.endswith(".br") and telefone_cliente.startswith("")) and not telefone_cliente.client.startswithc("+55"):
-    #         raise serializers.ValidationError("Email brasileiro deve estar associado a um númedo no Brasil.")
-    #     return attrs
+    def validate_telefone_cliente(self, value):
+        if(len(value) < 8):
+            raise serializers.ValidationError("O numero é muito curto!")
+        for char in value:
+            if (char == "+"):
+                if (value[0] != char):
+                    raise serializers.ValidationError("Caracter inválido!")
+
+            elif ( char != "(" and char != ")" and char != "-"):
+                if not ("0" <= char <= "9"):
+                    raise serializers.ValidationError("Caracter inválido!")
+
+
+        return value
+
+    def validate(self, attrs):
+        telefone_cliente = attrs.get("telefone_cliente", "")
+        email_cliente = attrs.get("email_cliente")
+
+        if(email_cliente.endswith(".br") and telefone_cliente.startswith("+") and not telefone_cliente.startswithc("+55")):
+            raise serializers.ValidationError("Email brasileiro deve estar associado a um númedo no Brasil.")
+        return attrs
+
 
 class PrestadorSerializer(serializers.ModelSerializer):
     class Meta:

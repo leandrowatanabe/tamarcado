@@ -18,6 +18,7 @@ class TestListagemAgendamentos(APITestCase):
             nome_cliente="Alice",
             email_cliente="alice@codar.me",
             telefone_cliente="12345678",
+            prestador="leandro"
         )
 
         agendamento_serializado = {
@@ -25,7 +26,8 @@ class TestListagemAgendamentos(APITestCase):
             "data_horario":"2022-03-28T00:00:00Z",
             "nome_cliente":"Alice",
             "email_cliente":"alice@codar.me",
-            "telefone_cliente":"12345678"
+            "telefone_cliente":"12345678",
+            "prestador":"leandro"
         }
         
         response = self.client.get("/api/agendamentos/")
@@ -46,6 +48,7 @@ class TestCriacaoAgendamento(APITestCase):
             nome_cliente="Alice",
             email_cliente="alice@codar.me",
             telefone_cliente="12345678",
+            prestador="leandro"
         )
 
         # response = self.client.post("/api/agendamentos/", agendamento_request_data, format="json")

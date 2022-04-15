@@ -41,6 +41,7 @@ class AgendamentoList(generics.ListCreateAPIView):
     def get_queryset(self):
         username = self.request.query_params.get("username", None)
         queryset = Agendamento.objects.filter(prestador__username=username)
+        queryset = Agendamento.objects.filter(cancelado = False)
         return queryset
 
 class PrestadorList(generics.ListAPIView):
