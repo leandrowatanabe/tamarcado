@@ -3,6 +3,7 @@ from django.utils import timezone
 from rest_framework import serializers
 
 from agenda.models import Agendamento
+from agenda.utils import get_horarios_disponiveis
 
 class AgendamentoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -21,6 +22,8 @@ class AgendamentoSerializer(serializers.ModelSerializer):
     def validate_data_horario(self, value):
         if(value < timezone.now()):
             raise serializers.ValidationError("Agendamento não pode ser feito no passado!")
+        if value not in get_horarios_disponiveis(value.date()):
+            raise serializers.ValidationError("Este horário não esta dispovível")
         return value
 
 
@@ -37,15 +40,16 @@ class AgendamentoSerializer(serializers.ModelSerializer):
                     raise serializers.ValidationError("Caracter inválido!")
 
 
+
         return value
 
-    def validate(self, attrs):
-        telefone_cliente = attrs.get("telefone_cliente", "")
-        email_cliente = attrs.get("email_cliente")
+#    def validate(self, attrs):
+#        telefone_cliente = attrs.get("telefone_cliente", "")
+#        email_cliente = attrs.get("email_cliente")
 
-        if(email_cliente.endswith(".br") and telefone_cliente.startswith("+") and not telefone_cliente.startswithc("+55")):
-            raise serializers.ValidationError("Email brasileiro deve estar associado a um númedo no Brasil.")
-        return attrs
+#        if(email_cliente.endswith(".br") and telefone_cliente.startswith("+") and not telefone_cliente.startswithc("+55")):
+#            raise serializers.ValidationError("Email brasileiro deve estar associado a um númedo no Brasil.")
+#        return attrs
 
 
 class PrestadorSerializer(serializers.ModelSerializer):
@@ -54,3 +58,4 @@ class PrestadorSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'agendamentos']
     
     agendamentos = AgendamentoSerializer(many=True, read_only=True)
+

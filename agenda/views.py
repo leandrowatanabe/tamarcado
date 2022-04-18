@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
@@ -12,6 +13,7 @@ from django.contrib.auth.models import User
 
 from agenda.models import Agendamento
 from agenda.serializers import AgendamentoSerializer, PrestadorSerializer
+from agenda.utils import get_horarios_disponiveis
 
 # Create your views here.
 class IsOwnerOrCreateOnly(permissions.BasePermission): 
@@ -34,6 +36,12 @@ class AgendamentoDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Agendamento.objects.all()
     serializer_class = AgendamentoSerializer
 
+    def perform_destroy(self, instance):
+        instance.cancelado = False
+        instance.save()
+
+    
+
 class AgendamentoList(generics.ListCreateAPIView):
     serializer_class = AgendamentoSerializer
     permission_classes = [IsOwnerOrCreateOnly]
@@ -47,3 +55,14 @@ class AgendamentoList(generics.ListCreateAPIView):
 class PrestadorList(generics.ListAPIView):
     serializer_class = PrestadorSerializer
     queryset = User.objects.all()
+
+@api_view(http_method_names=["GET"])
+def get_horarios(request):
+    data = request.query_params.get("data")
+    if not data:
+        data = datetime.now().date()
+    else:
+        data = datetime.fromisoformat(data).date()
+    
+    horarios_disponiveis = sorted(list(get_horarios_disponiveis(data)))
+    return Response(horarios_disponiveis)
