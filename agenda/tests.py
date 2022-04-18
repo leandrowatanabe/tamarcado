@@ -25,7 +25,7 @@ class TestListagemAgendamentos(APITestCase):
         self.client.force_authenticate(user)
 
         Agendamento.objects.create(
-            data_horario=datetime(2022,3,28),
+            data_horario=datetime(2022,3,28,tzinfo=timezone.utc),
             nome_cliente="Alice",
             email_cliente="alice@codar.me",
             telefone_cliente="12345678",
@@ -51,7 +51,7 @@ class TestListagemAgendamentos(APITestCase):
         self.client.force_authenticate(user1)
 
         Agendamento.objects.create(
-            data_horario=datetime(2022,3,28),
+            data_horario=datetime(2022,3,28,tzinfo=timezone.utc),
             nome_cliente="Alice",
             email_cliente="alice@codar.me",
             telefone_cliente="12345678",
