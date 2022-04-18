@@ -132,7 +132,9 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-TESTING = len(sys.argv) > 1 and sys.argv[1] == "test"
+# TESTING = len(sys.argv) > 1 and sys.argv[1] == "test"
+
+TESTING = True
 
 LOGGING = {
     'version': 1,
