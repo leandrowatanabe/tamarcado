@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
+import logging
 from pathlib import Path
 
 import sys
@@ -132,3 +133,35 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 TESTING = len(sys.argv) > 1 and sys.argv[1] == "test"
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+    'handler': {
+        'console':{
+            'class':'logging.StreamHandler',
+            'formatter':'console'
+        },
+        'file': {
+            'class':'logging.FileHandler',
+            'formatter':'file',
+            'filename':'app.log'
+        },
+    },
+    'loggers':{
+        '':{
+            'level':'WARN',
+            'handlers':['console', 'file']
+        }
+    }
+}
