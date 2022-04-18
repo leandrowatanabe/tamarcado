@@ -18,7 +18,7 @@ class TestListagemAgendamentos(APITestCase):
         self.client.force_authenticate(user)
         response = self.client.get("/api/agendamentos/?username=teste")
         data = json.loads(response.content)
-        self.assertEqual(data, [])
+        assert data == []
 
     def test_listagem_de_agendamentos_criados(self):
         user = User.objects.create(email="teste@codar.me", username="teste", password="123")
@@ -44,7 +44,7 @@ class TestListagemAgendamentos(APITestCase):
         
         response = self.client.get("/api/agendamentos/?username=teste")
         data = json.loads(response.content)
-        self.assertDictEqual(data[0], agendamento_serializado)
+        assert data[0] == agendamento_serializado
 
     def test_listagem_acessado_por_outro_user(self):
         user1 = User.objects.create(email="teste@codar.me", username="teste", password="123")
@@ -60,7 +60,7 @@ class TestListagemAgendamentos(APITestCase):
         )
         
         response = self.client.get("/api/agendamentos/?username=random")
-        self.assertEqual(response.status_code, 403)
+        assert response.status_code == 403
 
 class TestCriacaoAgendamento(APITestCase):
     def test_cria_agendamento(self):
@@ -81,7 +81,7 @@ class TestCriacaoAgendamento(APITestCase):
 
         agendamento_criado = Agendamento.objects.get()
 
-        self.assertEqual(agendamento_criado.data_horario, datetime(2022, 3, 28, tzinfo=timezone.utc))
+        assert (agendamento_criado.data_horario == datetime(2022, 3, 28, tzinfo=timezone.utc))
 
     def test_cria_agendamento_status(self):
 
@@ -99,19 +99,19 @@ class TestCriacaoAgendamento(APITestCase):
 
         response = self.client.post("/api/agendamentos/", agendamento_criado)
    
-        self.assertEqual(response.status_code, 201)
+        assert response.status_code == 201
 
 class TestGetHorarios(APITestCase):
     @mock.patch("agenda.libs.brasil_api.is_feriado", return_value=True)
     def test_quando_data_e_feriado_retorna_lista_vazia(self, _):
         response = self.client.get("/api/horarios/?data=2022-12-25")
-        self.assertEqual(response.data, [])
+        assert response.data == []
 
     @mock.patch("agenda.libs.brasil_api.is_feriado", return_value=False)
     def test_retorna_lista(self, _):
         response = self.client.get("/api/horarios/?data=2022-04-18")
-        self.assertNotEqual(response.data, [])
-        self.assertEqual(response.data[0], datetime(2022, 4, 18, 9, tzinfo=timezone.utc))
-        self.assertEqual(response.data[-1], datetime(2022, 4, 18, 17, 30, tzinfo=timezone.utc))
+        assert response.data != []
+        assert response.data[0] == datetime(2022, 4, 18, 9, tzinfo=timezone.utc)
+        assert response.data[-1] == datetime(2022, 4, 18, 17, 30, tzinfo=timezone.utc)
 
 
