@@ -1,12 +1,10 @@
 from datetime import datetime
-from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
+from django.http import HttpResponse
 from django.contrib.auth.models import User
 
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from rest_framework.views import APIView
-from rest_framework import mixins
+
 from rest_framework import generics
 from rest_framework import permissions
 from django.contrib.auth.models import User
@@ -14,6 +12,9 @@ from django.contrib.auth.models import User
 from agenda.models import Agendamento
 from agenda.serializers import AgendamentoSerializer, PrestadorSerializer
 from agenda.utils import get_horarios_disponiveis
+
+import csv
+from datetime import date
 
 # Create your views here.
 class IsOwnerOrCreateOnly(permissions.BasePermission): 
@@ -52,9 +53,35 @@ class AgendamentoList(generics.ListCreateAPIView):
         queryset = Agendamento.objects.filter(cancelado = False)
         return queryset
 
-class PrestadorList(generics.ListAPIView):
-    serializer_class = PrestadorSerializer
-    queryset = User.objects.all()
+# class PrestadorList(generics.ListAPIView):
+#     serializer_class = PrestadorSerializer
+#     queryset = User.objects.all()
+
+@api_view(http_method_names=["GET"])
+@permission_classes([permissions.IsAdminUser])
+def relatorio_prestadores(request):
+    formato = request.query_params.get("formato")
+    prestadores = User.objects.all()
+    serializer = PrestadorSerializer(prestadores, many=True)
+    if formato == "csv":
+        data_hoje = date.today()
+        response = HttpResponse(
+            content_type = 'text/csv',
+            headers={'Content-Disposition':f'attachment; filename="relatorio_{data_hoje}.csv"'}
+        )
+        writer = csv.writer(response)
+        for prestador in serializer.data:
+            agendamentos = prestador["agendamentos"]
+            for agendamento in agendamentos:
+                writer.writerow([
+                    agendamento["prestador"],
+                    agendamento["nome_cliente"],
+                    agendamento["email_cliente"],
+                    agendamento["data_horario"]
+                ])
+        return response
+    else:
+        return Response(serializer.data)
 
 @api_view(http_method_names=["GET"])
 def get_horarios(request):
