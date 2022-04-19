@@ -8,7 +8,7 @@ from django.conf import settings
 def is_feriado(data: date) -> bool:
     logging.info(f"Fazendo uma requisição para BrasilAPI para a data: {data.isoformat()}")
     if settings.TESTING == True:
-        logging.inf("Requisição não está sendo feita pois TESTING = True")
+        logging.info("Requisição não está sendo feita pois TESTING = True")
         if data.day == 25 and data.month == 12:
             return True
         return False    
